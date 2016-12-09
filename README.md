@@ -1,4 +1,4 @@
-# elasticsearch-concatenate-token-filter
+# elasticsearch-exclude-token-filter
 Elasticsearch plugin which only provides a TokenFilter that merges tokens in a token stream back into one. Taken from http://elasticsearch-users.115913.n3.nabble.com/Is-there-a-concatenation-filter-td3711094.html
 
 ## ElasticSearch version support
