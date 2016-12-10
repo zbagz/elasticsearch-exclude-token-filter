@@ -6,7 +6,7 @@ This plugin targets 1.X versions of ES, and won't work for 2.X.
 ## Install
 To install on your current ES node, use the plugin binary provided in the bin folder (on Ubuntu it should be under `/usr/share/elasticsearch/bin`)
 
-    bin/plugin -u https://github.com/zbagz/elasticsearch-exclude-token-filter/releases/download/v1.1.0/elasticsearch-exclude-1.1.0.zip -i concatenate
+    bin/plugin -u https://github.com/zbagz/elasticsearch-exclude-token-filter/archive/master.zip -i exclude
     
 ## Usage
 The plugin provides a token filter of type `concatenate` which has one parameter `token_separator`. Use it in your custom analyzers to merge tokenized strings back into one single token (usually after applying stemming or other token filters).
