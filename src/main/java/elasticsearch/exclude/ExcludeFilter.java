@@ -1,74 +1,69 @@
 package org.elasticsearch.index.analysis.exclude;
 
-import java.io.IOException;
-
+import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
-import org.apache.lucene.util.AttributeSource;
 import org.apache.lucene.util.Version;
 
-public final class ExcludeFilter extends TokenFilter {
+import java.io.IOException;
 
-    private final static String DEFAULT_TOKEN_SEPARATOR = " ";
+/**
+ * A token filter that generates unique tokens. Can remove unique tokens only on the same
+ * position increments as well.
+ */
+public class UniqueTokenFilter extends TokenFilter {
 
-    private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
-    private final PositionIncrementAttribute posIncrAtt = addAttribute(PositionIncrementAttribute.class);
-    private String tokenSeparator = null;
-    private int incrementGap = 100;
-    private StringBuilder builder = new StringBuilder();
-    private AttributeSource.State previousState = null;
-    private boolean recheckPrevious = false;
+    private final CharTermAttribute termAttribute = addAttribute(CharTermAttribute.class);
+    private final PositionIncrementAttribute posIncAttribute = addAttribute(PositionIncrementAttribute.class);
 
-    public ExcludeFilter(Version matchVersion, TokenStream input, String tokenSeparator, int incrementGap) {
-        super(input);
-        this.tokenSeparator = tokenSeparator!=null ? tokenSeparator : DEFAULT_TOKEN_SEPARATOR;
-        this.incrementGap = incrementGap;
+    // use a fixed version, as we don't care about case sensitivity.
+    private final CharArraySet previous = new CharArraySet(Version.LUCENE_31, 8, false);
+    private final boolean onlyOnSamePosition;
+
+    public UniqueTokenFilter(TokenStream in) {
+        this(in, false);
     }
 
-    public ExcludeFilter(Version matchVersion, TokenStream input, String tokenSeparator) {
-        super(input);
-        this.tokenSeparator = tokenSeparator!=null ? tokenSeparator : DEFAULT_TOKEN_SEPARATOR;
-        this.incrementGap = 100;
+    public UniqueTokenFilter(TokenStream in, boolean onlyOnSamePosition) {
+        super(in);
+        this.onlyOnSamePosition = onlyOnSamePosition;
     }
 
     @Override
-    public boolean incrementToken() throws IOException {
-        boolean empty = false;
-        builder.setLength(0);
-
-	if(recheckPrevious) {
-	   restoreState(previousState);
-	   // append the term of the current token
-           builder.append(termAtt.buffer(), 0, termAtt.length());
-           recheckPrevious = false;
-	}
-
+    public final boolean incrementToken() throws IOException {
         while (input.incrementToken()) {
-	    if(posIncrAtt.getPositionIncrement() <= incrementGap) {
-                if (builder.length()>0) {
-                    // append the token separator
-                    builder.append(tokenSeparator);
+            final char term[] = termAttribute.buffer();
+            final int length = termAttribute.length();
+
+            boolean duplicate;
+            if (onlyOnSamePosition) {
+                final int posIncrement = posIncAttribute.getPositionIncrement();
+                if (posIncrement > 0) {
+                    previous.clear();
                 }
-                // append the term of the current token
-                builder.append(termAtt.buffer(), 0, termAtt.length());
+
+                duplicate = (posIncrement == 0 && previous.contains(term, 0, length));
             } else {
-		// we have found a new element in the array, the next token should start from this one
-                recheckPrevious = true;
-		previousState = captureState();
-	        break;
-	    }
-	}
+                duplicate = previous.contains(term, 0, length);
+            }
 
-        if (builder.length()>0) {
-            termAtt.setEmpty().append(builder);
-	    if(!recheckPrevious) {
-	        empty = true;
-	    }
+            // clone the term, and add to the set of seen terms.
+            char saved[] = new char[length];
+            System.arraycopy(term, 0, saved, 0, length);
+            previous.add(saved);
+
+            if (!duplicate) {
+                return true;
+            }
         }
-
-        return empty;
+        return false;
     }
 
+    @Override
+    public final void reset() throws IOException {
+        super.reset();
+        previous.clear();
+    }
 }
