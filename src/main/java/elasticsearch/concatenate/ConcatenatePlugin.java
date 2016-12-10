@@ -1,4 +1,4 @@
-package elasticsearch.concatenate;
+package elasticsearch.exclude;
 
 import java.util.Collection;
 
@@ -7,10 +7,10 @@ import org.elasticsearch.common.component.LifecycleComponent;
 import org.elasticsearch.common.inject.Module;
 import org.elasticsearch.plugins.AbstractPlugin;
 
-public class ConcatenatePlugin extends AbstractPlugin {
+public class ExcludePlugin extends AbstractPlugin {
     @Override
     public String name() {
-        return "ConcatenatePlugin";
+        return "ExcludePlugin";
     }
 
     @Override
