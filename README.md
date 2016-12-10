@@ -45,5 +45,5 @@ the string:
     
 would only allow:
 
-    "fox" (2 times)
+    "fox" (2 occurrences)
     
