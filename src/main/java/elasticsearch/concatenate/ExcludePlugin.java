@@ -1,4 +1,4 @@
-package elasticsearch.concatenate;
+package elasticsearch.exclude;
 
 import java.util.Collection;
 
