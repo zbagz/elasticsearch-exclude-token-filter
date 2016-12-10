@@ -7,14 +7,14 @@ import org.elasticsearch.common.component.LifecycleComponent;
 import org.elasticsearch.common.inject.Module;
 import org.elasticsearch.plugins.AbstractPlugin;
 
-public class ConcatenatePlugin extends AbstractPlugin {
+public class ExcludePlugin extends AbstractPlugin {
     @Override
     public String name() {
-        return "ConcatenatePlugin";
+        return "ExcludePlugin";
     }
 
     @Override
     public String description() {
-        return "Plugin that provides a Token Filter that recombines all of the tokens in a token stream back into one.";
+        return "Plugin that provides a Token Filter that excludes tokens based on occurrences / frequency.";
     }
 }
