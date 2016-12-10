@@ -1,4 +1,4 @@
-package org.elasticsearch.index.analysis.concatenate;
+package org.elasticsearch.index.analysis.exclude;
 
 import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;
 import org.elasticsearch.index.analysis.Analysis;
@@ -16,13 +16,13 @@ import org.elasticsearch.index.settings.IndexSettings;
 
 import org.apache.lucene.util.Version;
 
-public class ConcatenateTokenFilterFactory extends AbstractTokenFilterFactory {
+public class ExcludeTokenFilterFactory extends AbstractTokenFilterFactory {
 
     private String tokenSeparator = null;
     private int incrementGap = 100;
     
     @Inject 
-    public ConcatenateTokenFilterFactory(Index index, @IndexSettings Settings indexSettings, @Assisted String name, @Assisted Settings settings) {
+    public ExcludeTokenFilterFactory(Index index, @IndexSettings Settings indexSettings, @Assisted String name, @Assisted Settings settings) {
         super(index, indexSettings, name, settings);
         // the token_separator is defined in the ES configuration file
         tokenSeparator = settings.get("token_separator");
@@ -31,7 +31,7 @@ public class ConcatenateTokenFilterFactory extends AbstractTokenFilterFactory {
 
     @Override 
     public TokenStream create(TokenStream tokenStream) {
-        return new ConcatenateFilter(Version.LATEST, tokenStream, tokenSeparator, incrementGap);
+        return new ExcludeFilter(Version.LATEST, tokenStream, tokenSeparator, incrementGap);
     }
 
 }
