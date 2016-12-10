@@ -1,4 +1,4 @@
-package org.elasticsearch.index.analysis.concatenate;
+package org.elasticsearch.index.analysis.exclude;
 
 import java.io.IOException;
 
@@ -9,7 +9,7 @@ import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.util.AttributeSource;
 import org.apache.lucene.util.Version;
 
-public final class ConcatenateFilter extends TokenFilter {
+public final class ExcludeFilter extends TokenFilter {
 
     private final static String DEFAULT_TOKEN_SEPARATOR = " ";
 
@@ -21,7 +21,7 @@ public final class ConcatenateFilter extends TokenFilter {
     private AttributeSource.State previousState = null;
     private boolean recheckPrevious = false;
 
-    public ConcatenateFilter(Version matchVersion, TokenStream input, String tokenSeparator, int incrementGap) {
+    public ExcludeFilter(Version matchVersion, TokenStream input, String tokenSeparator, int incrementGap) {
         super(input);
         this.tokenSeparator = tokenSeparator!=null ? tokenSeparator : DEFAULT_TOKEN_SEPARATOR;
         this.incrementGap = incrementGap;
